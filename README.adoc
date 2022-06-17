@@ -151,6 +151,19 @@ rolepaths
 
 In this way init-roles is always able to get the starting point it needs to grab the primary role and all dependencies.
 
+== Handling SSH keys for git credentials
+
+The AAP 2.x integration with ansible-galaxy automatically handles git repo credentials using a builtin credential type.
+
+Since we are manually calling `ansible-galaxy` we need to manually handle these. SSH keys being the most common auth type.
+we will walk through how to make that work.
+
+=== Custom Credential Type
+
+We will need to create a custom credential type and at least one credential based on that type.
+
+
+
 == Cleaning up the demo
 
 To clean out the roles dir, you can run `make clean`.
