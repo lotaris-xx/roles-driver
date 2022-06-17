@@ -14,8 +14,7 @@ This method supports the following features:
 * *Meta-roles*: Meta roles can be created that depend on a particular set of roles
 * *Generic Playbook*: You can hand a role in to a generic playbook and deps of that role will be looked up.
 
-NOTE: Although a roles `meta/main.yml` will pull in dependencies, these are actually prerequisites that
-will be automatically executed by `ansible-galaxy` which solves a different use case.
+NOTE: This role is a stop-gap measure until all the roles can be moved into appropriate collections.
 
 == Prerequisites of this role
 
@@ -90,6 +89,8 @@ we demonstrate the primary role, a dependent role and dependent of that role, sh
 
 == Setting up and running the demo
 
+=== From the CLI
+
 To run from the CLI on a RHEL8 or Fedora 35/36 host perform the following steps:
 
 .Install/Run Steps
@@ -100,9 +101,17 @@ To run from the CLI on a RHEL8 or Fedora 35/36 host perform the following steps:
 . Pull clone this project: `git clone https://github.com/lotaris-xx/roles-driver.git`
 . Switch to the project dir: `cd roles-driver`
 . Cleanup && setup the initial role: `make clean && make`
-. Execute the playbook in an execution environment: `ansible-navigator run -i inventory --eei quay.io/ansible/creator-ee site.yml --pp missing --mode=stdout`
+. Execute the playbook in an execution environment: `ansible-navigator run -i inventory --eei quay.io/ansible/creator-ee specific.yml --pp missing --mode=stdout`
 
 The playbook should run pulling in a set of roles and then executing them.
+
+=== From the AAP Controller UI
+
+. Add a credential holding the SSH private key being used (See "Handling SSH keys for git credentials" below for more info)
+. Create a project pointing at https://github.com/lotaris-xx/roles-driver.git
+. Create a JT using that project that points at `specific.yml`
+. Create a JT using that project that points at `generic.yml`
+. Launch one of the JTs
 
 == Calling a generic playbook
 
@@ -117,7 +126,7 @@ So, it would something like:
 [source, shell]
 ----
 rolepaths
-└── pri-role-1
+└── pri-role-1.yml
 ----
 
 .rolepaths/pri-role-1
