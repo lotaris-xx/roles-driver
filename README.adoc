@@ -162,7 +162,40 @@ we will walk through how to make that work.
 
 We will need to create a custom credential type and at least one credential based on that type.
 
+The custom credential we are going to use will take an ssh private key as input, write out an ephemeral file and set
+a shell environment variable that will point to the location of the private key file. Here is the definition of the
+credential type. First the Input Configuration (what the UI is going to ask when you add a cred of this type):
 
+.Input Configuration
+[source, yaml]
+----
+fields:
+  - id: sshkey
+    type: string
+    label: SSH Private Key
+    format: ssh_private_key
+    secret: true
+    multiline: true
+----
+
+This says we are only going to have a single value (field) in the credential. It will be a multi-line secret
+string that has a special format (ssh_private_key).
+
+NOTE: Special handling is needed as SSH keys must end a `\n` and without special handling that `\n` would be stripped away.
+
+Here is the Injector Configuration (what ansible will do with the credential when it is attached to a JT):
+
+.Injector Configuration
+[source, yaml]
+----
+env:
+  GIT_SSH_KEY_FILE: '{{ tower.filename.key_file }}'
+file:
+  template.key_file: '{{ sshkey }}'
+----
+
+What this says is that a file will be created that contains the `sshkey` field from the credential and
+a shell var named `GIT_SSH_KEY_FILE` will point at the location of the file.
 
 == Cleaning up the demo
 
