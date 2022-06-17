@@ -101,6 +101,7 @@ To run from the CLI on a RHEL8 or Fedora 35/36 host perform the following steps:
 . Pull clone this project: `git clone https://github.com/lotaris-xx/roles-driver.git`
 . Switch to the project dir: `cd roles-driver`
 . Cleanup && setup the initial role: `make clean && make`
+. Use `ssh-add` to add the appropriate git ssh key to the keyring (the EE will have access to the loaded keys).
 . Execute the playbook in an execution environment: `ansible-navigator run -i inventory --eei quay.io/ansible/creator-ee specific.yml --pp missing --mode=stdout`
 
 The playbook should run pulling in a set of roles and then executing them.
