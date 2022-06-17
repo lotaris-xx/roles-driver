@@ -1,3 +1,4 @@
-- src: https://github.com/lotaris-xx/roles-pri-role-1.git
+- src: git@github.com:lotaris-xx/roles-pri-role-1.git
+  scm: git
   name: pri-role-1
   version: main
