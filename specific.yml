@@ -1,0 +1,29 @@
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Initialize all the top-level roles we need
+      ansible.builtin.import_role:
+        name: init-roles
+      run_once: true
+      vars:
+        rolespec:
+          - src: https://github.com/lotaris-xx/roles-pri-role-1.git
+            name: pri-role-1
+            version: main
+
+- hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: Run the 1st role role of the playbook
+      ansible.builtin.include_role:
+        name: pri-role-1
+
+    - name: Run a role that was listed as a dependency of pri-role-1
+      ansible.builtin.include_role:
+        name: dep-role-1
+
+    - name: Run a role that was listed as a dependency of dep-role-1
+      ansible.builtin.include_role:
+        name: dep-role-2

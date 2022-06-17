@@ -1,0 +1,16 @@
+# Pass in the extravar role_to_run with the name of the role
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Initialize all the top-level roles we need
+      ansible.builtin.import_role:
+        name: init-roles
+      run_once: true
+
+- hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: Run the 1st role role of the playbook
+      ansible.builtin.include_role:
+        name: "{{ role_to_run}}"

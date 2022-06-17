@@ -1,0 +1,3 @@
+- src: https://github.com/lotaris-xx/roles-pri-role-1.git
+  name: pri-role-1
+  version: main

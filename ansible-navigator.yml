@@ -1,0 +1,11 @@
+# cspell:ignore cmdline, workdir
+---
+ansible-navigator:
+  execution-environment:
+    container-engine: podman
+    image: quay.io/ansible/creator-ee
+    pull:
+      policy: missing
+    enabled: true
+  playbook-artifact:
+    enable: false

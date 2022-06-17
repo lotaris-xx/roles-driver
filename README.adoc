@@ -1,0 +1,157 @@
+== Overview of driver role
+
+This role is used to drive the demonstration of one method of pulling desired roles at runtime
+rather than at project refresh time.
+
+In the current environment we have many roles, all of which are included in a `roles/requirements.yml` file.
+This causes a big delay at JT launch time as all roles need to be synced into the project, even though
+it is possible that only a few will be used.
+
+This method supports the following features:
+
+* *Role dependencies*: Each role can have list of dependent roles that will be pulled in.
+* *Role versioning*: Each role can be versioned allowing for fine-grain control of dependencies
+* *Meta-roles*: Meta roles can be created that depend on a particular set of roles
+* *Generic Playbook*: You can hand a role in to a generic playbook and deps of that role will be looked up.
+
+NOTE: Although a roles `meta/main.yml` will pull in dependencies, these are actually prerequisites that
+will be automatically executed by `ansible-galaxy` which solves a different use case.
+
+== Prerequisites of this role
+
+In order to use this role, there are a few required parts:
+
+=== The initialization role
+
+We need an initialization role that will called to satisfy dependencies. A sample role can be found at
+[https://github.com/lotaris-xx/roles-init-role.git]
+
+=== The main requirements.yml file
+
+We will have a requirements.yml file that will point to the initialization role.
+AAP will automatically see this and pull it in at project refresh time.
+If using `ansible-navigator` from the CLI we have a Makefile that can be used to call `ansible-galaxy` and pull it in.
+
+Here is a sample file:
+
+.requirements.yml
+[source, yaml]
+----
+- src: https://github.com/lotaris-xx/roles-init-role
+  version: main
+  name: init-roles
+----
+
+This sample requirements.yml will cause a role to pulled in from the main branch of of the src. It will be written to `{{ project_dir }}/roles`,
+which is the path we have defined in `ansible.cfg` for role lookup in this project.
+
+=== A playbook
+We will need a playbook to import/run the init-roles code and then our job code.
+
+Here is a sample playbook:
+
+.specific.yml
+[source, yaml]
+----
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Initialize all the top level roles we need
+      ansible.builtin.import_role:
+        name: init-roles
+      run_once: true
+      vars:
+        rolespec:
+          - src: https://github.com/lotaris-xx/roles-pri-role-1.git
+            name: pri-role-1
+
+- hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: Run the 1st role role of the playbook
+      ansible.builtin.include_role:
+        name: pri-role-1
+
+    - name: Run a role that was listed as a dependency of pri-role-1
+      ansible.builtin.include_role:
+        name: dep-role-1
+
+    - name: Run a role that was listed as a dependency of dep-role-1
+      ansible.builtin.include_role:
+        name: dep-role-2
+----
+
+This playbook has two plays. The first play with `hosts: localhost` does the work of pulling in all of the top-level roles
+which are defined in the `rolespec` list as well as the dependencies of those roles.
+
+The second play starting at `hosts: all` runs the ansible code that is doing the work we want to accomplish. In our example
+we demonstrate the primary role, a dependent role and dependent of that role, showing that the `init-roles` role pulls in all dependencies.
+
+== Setting up and running the demo
+
+To run from the CLI on a RHEL8 or Fedora 35/36 host perform the following steps:
+
+.Install/Run Steps
+. Install packages: `sudo yum install podman git make`
+. Create a python3 virtual environment: `python3 -m venv vansible`
+. Activate the virtual environment: `. vansible/bin/activate`
+. Install packages: `pip install --upgrade pip wheel && pip install ansible ansible-navigator`
+. Pull clone this project: `git clone https://github.com/lotaris-xx/roles-driver.git`
+. Switch to the project dir: `cd roles-driver`
+. Cleanup && setup the initial role: `make clean && make`
+. Execute the playbook in an execution environment: `ansible-navigator run -i inventory --eei quay.io/ansible/creator-ee site.yml --pp missing --mode=stdout`
+
+The playbook should run pulling in a set of roles and then executing them.
+
+== Calling a generic playbook
+
+It is also possible to have a generic playbook, where the role we want to run is handed in as an extravar (we use role_to_run in this demonstration).
+
+In order to enable init-roles to lookup the role dependencies we need to maintain a lookup of role to repo mappings in the main project. We do this be create a
+`rolepaths` directory. Inside the directory we have files named after each role containing a `requirements.yml` style contents that will be handed to `ansible-galaxy`.
+
+So, it would something like:
+
+.Sample rolepaths dir
+[source, shell]
+----
+rolepaths
+└── pri-role-1
+----
+
+.rolepaths/pri-role-1
+[source, yaml]
+----
+- src: https://github.com/lotaris-xx/roles-pri-role-1.git
+  name: pri-role-1
+  version: main
+----
+
+.Generic playbook
+[source, yaml]
+----
+# Pass in the extravar role_to_run with the name of the role
+ - hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Initialize all the top-level roles we need
+      ansible.builtin.import_role:
+        name: init-roles
+      run_once: true
+
+- hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: Run the 1st role role of the playbook
+      ansible.builtin.include_role:
+        name: "{{ role_to_run}}"
+----
+
+In this way init-roles is always able to get the starting point it needs to grab the primary role and all dependencies.
+
+== Cleaning up the demo
+
+To clean out the roles dir, you can run `make clean`.
+

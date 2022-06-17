@@ -1,0 +1,3 @@
+- src: https://github.com/lotaris-xx/roles-init-role
+  version: main
+  name: init-roles
