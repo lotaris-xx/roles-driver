@@ -98,7 +98,7 @@ To run from the CLI on a RHEL8 or Fedora 35/36 host perform the following steps:
 . Create a python3 virtual environment: `python3 -m venv vansible`
 . Activate the virtual environment: `. vansible/bin/activate`
 . Install packages: `pip install --upgrade pip wheel && pip install ansible ansible-navigator`
-. Pull clone this project: `git clone https://github.com/lotaris-xx/roles-driver.git`
+. Clone this project: `git clone https://github.com/lotaris-xx/roles-driver.git`
 . Switch to the project dir: `cd roles-driver`
 . Cleanup && setup the initial role: `make clean && make`
 . Use `ssh-add` to add the appropriate git ssh key to the keyring (the EE will have access to the loaded keys).
