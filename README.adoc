@@ -14,7 +14,7 @@ This method supports the following features:
 * *Meta-roles*: Meta roles can be created that depend on a particular set of roles
 * *Generic Playbook*: You can hand a role in to a generic playbook and deps of that role will be looked up.
 
-NOTE: This role is a stop-gap measure until all the roles can be moved into appropriate collections.
+NOTE: This role may not be needed if unchecking the `delete` checkbox in the project speeds things up enough.
 
 == Prerequisites of this role
 
