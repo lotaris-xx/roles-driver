@@ -44,6 +44,23 @@ Here is a sample file:
 This sample requirements.yml will cause a role to pulled in from the main branch of of the src. It will be written to `{{ project_dir }}/roles`,
 which is the path we have defined in `ansible.cfg` for role lookup in this project.
 
+=== Role requirements file (roledep.yml)
+
+In order for `ansible-galaxy` to find role dependencies a new `roledep.yml` file should be placed in the root of the role repo.
+init-roles will run `ansible-galaxy` against that requirements file to pull in dependencies. The init-roles code will keep looping
+through dependencies until is has pulled them all in.
+
+.Sample Role roledep.yml file
+[source, yaml]
+----
+# This is a requirements.yml file for the role
+# If you use the init-role role, it will pull these
+# roles in at job runtime
+- src: https://github.com/lotaris-xx/roles-dep-role-1.git
+  name: dep-role-1
+  version: main
+----
+
 === A playbook
 We will need a playbook to import/run the init-roles code and then our job code.
 
